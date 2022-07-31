@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Android Encryption</string>
+    <string name="aes_encryption">AES Encryption</string>
+    <string name="rsa_encryption">RSA Encryption</string>
+</resources>
