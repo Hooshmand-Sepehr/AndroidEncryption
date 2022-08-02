@@ -2,4 +2,5 @@
     <string name="app_name">Android Encryption</string>
     <string name="aes_encryption">AES Encryption</string>
     <string name="rsa_encryption">RSA Encryption</string>
+    <string name="aes_rsa_encryption">AES+RSA Encryption</string>
 </resources>

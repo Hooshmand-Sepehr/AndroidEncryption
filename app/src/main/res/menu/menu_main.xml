@@ -12,4 +12,9 @@
         android:orderInCategory="2"
         android:title="@string/rsa_encryption" />
 
+    <item
+        android:id="@+id/aesWithRsaAction"
+        android:orderInCategory="3"
+        android:title="@string/aes_rsa_encryption" />
+
 </menu>

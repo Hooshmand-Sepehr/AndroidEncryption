@@ -1,12 +1,16 @@
 package mohsen.soltanian.example.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Base64
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -29,6 +33,8 @@ import mohsen.soltanian.example.helper.JavaLanguage
 import mohsen.soltanian.example.models.UserModel
 
 class MainActivity : AppCompatActivity() {
+
+   private lateinit var preferences: SharedPreferences
 
     private val iEncryptionRSA: IEncryption by lazy {
         val builder = EncryptionBuilder(alias = Alias.RSA.value, type = CipherAlgorithm.RSA)
@@ -55,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        preferences = getSharedPreferences("androidEncryption", MODE_PRIVATE)
         setUpCodeView()
         lifecycleScope.launchWhenCreated {
             binding.editFistName.asFlow().debounce(timeoutMillis = 30)
@@ -84,6 +91,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.buttonEncrypt.setSafeOnClickListener {
             if (dataValidation()) {
+                hideKeyboard()
                 when (binding.buttonEncrypt.tag) {
                     "AES" -> {
                         val model = UserModel(firstName = firstName, lastName = lastName, age = age)
@@ -235,14 +243,12 @@ class MainActivity : AppCompatActivity() {
 
     private var cipherIV: ByteArray?
         get() {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
             preferences.getString("cipher_iv", null)?.let {
                 return Base64.decode(it, Base64.DEFAULT)
             }
             return null
         }
         set(value) {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
             val editor = preferences.edit()
             editor.putString("cipher_iv", Base64.encodeToString(value, Base64.DEFAULT))
             editor.apply()
@@ -262,6 +268,7 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.aesAction -> {
@@ -276,6 +283,9 @@ class MainActivity : AppCompatActivity() {
                 binding.buttonEncrypt.tag = "RSA"
                 binding.buttonDecrypt.tag = "RSA"
             }
+            R.id.aesWithRsaAction -> {
+                startActivity(Intent(this@MainActivity,AesWithRsaEncryptionActivity::class.java))
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -288,6 +298,15 @@ class MainActivity : AppCompatActivity() {
         }
         super.onBackPressed()
 
+    }
+
+    private fun hideKeyboard() {
+        val view: View? = this.currentFocus
+        if (view != null) {
+            val imm: InputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     }
 
 }
